@@ -1,0 +1,11 @@
+.wrapper {
+    @apply min-h-screen grid grid-cols-1 lg:grid-cols-2;
+
+    > .left {
+        @apply h-full flex items-center lg:flex flex-col justify-center px-4;
+    }
+
+    > .right {
+        @apply h-full hidden bg-primary lg:flex items-center justify-center;
+    }
+}

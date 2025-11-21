@@ -1,4 +1,74 @@
-name: Frontend CI/CDon:  push:    branches:      - main      - master    paths:      - '**'  pull_request:    paths:      - '**'jobs:  ci:    name: Frontend build & lint    runs-on: ubuntu-latest    steps:      - name: Checkout        uses: actions/checkout@v4      - name: Setup Node.js        uses: actions/setup-node@v4        with:          node-version: 20          cache: npm          cache-dependency-path: package-lock.json      - name: Install deps        run: npm ci      - name: Lint        run: npm run lint      - name: Build        run: npm run build  docker:    name: Build & push frontend Docker image    needs: ci    runs-on: ubuntu-latest    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'    steps:      - name: Checkout        uses: actions/checkout@v4      - name: Set up QEMU        uses: docker/setup-qemu-action@v3      - name: Set up Docker Buildx        uses: docker/setup-buildx-action@v3      - name: Login to GitHub Container Registry        uses: docker/login-action@v3        with:          registry: ghcr.io          username: ${{ github.actor }}          password: ${{ secrets.GITHUB_TOKEN }}      - name: Build and push image        uses: docker/build-push-action@v6        with:          context: .          file: ./Dockerfile          push: true          tags: |            ghcr.io/${{ github.repository_owner }}/cinema-frontend:latest            ghcr.io/${{ github.repository_owner }}/cinema-frontend:${{ github.sha }}
+name: Frontend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - '**'
+  pull_request:
+    paths:
+      - '**'
+
+jobs:
+  ci:
+    name: Frontend build & lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+  docker:
+    name: Build & push frontend Docker image
+    needs: ci
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/cinema-frontend:latest
+            ghcr.io/${{ github.repository_owner }}/cinema-frontend:${{ github.sha }}
+
 Разница от текущего файла:
 убрали working-directory: cinema-together;
 все пути и cache-dependency-path смотрят на корень (package-lock.json, Dockerfile, .).

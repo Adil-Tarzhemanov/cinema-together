@@ -68,8 +68,3 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/cinema-frontend:latest
             ghcr.io/${{ github.repository_owner }}/cinema-frontend:${{ github.sha }}
-
-Разница от текущего файла:
-убрали working-directory: cinema-together;
-все пути и cache-dependency-path смотрят на корень (package-lock.json, Dockerfile, .).
-2

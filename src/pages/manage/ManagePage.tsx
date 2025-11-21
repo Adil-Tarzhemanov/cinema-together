@@ -26,3 +26,5 @@ export const ManagePage: FC = () => {
     </div>
   )
 }
+
+export default ManagePage

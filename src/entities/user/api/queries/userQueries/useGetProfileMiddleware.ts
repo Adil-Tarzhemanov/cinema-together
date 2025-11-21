@@ -4,7 +4,7 @@ import { axiosWithAuth } from '@/shared/api/interceptors'
 import { API_URL } from '@/shared/config/api.config'
 import { IUser } from '@/shared/types/user.types'
 
-const getProfileMiddleware = async refreshToken => {
+const getProfileMiddleware = async (refreshToken: string) => {
   const { data: profile } = await axiosWithAuth.get<IUser>(
     API_URL.users('/profile'),
     {

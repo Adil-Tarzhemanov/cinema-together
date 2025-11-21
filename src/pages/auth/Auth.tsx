@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 
-import styles from './styles.module.scss'
 import { authWidgetsUi } from '@/widgets'
+import styles from './styles.module.scss'
 
 const { AuthFormWidget } = authWidgetsUi
 
@@ -27,3 +27,5 @@ export function AuthPage() {
     </div>
   )
 }
+
+export default AuthPage

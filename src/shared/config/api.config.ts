@@ -1,4 +1,14 @@
-export const SERVER_URL = `${process.env.SERVER_URL}/api` as string
+const getServerUrl = () => {
+  if (typeof window === 'undefined') {
+    // на сервере (SSR, middleware, RSC) ходим по внутреннему адресу
+    return process.env.INTERNAL_API_URL as string
+  }
+
+  // в браузере — по публичному URL (localhost:4200)
+  return process.env.NEXT_PUBLIC_SERVER_URL as string
+}
+
+export const SERVER_URL = `${getServerUrl()}/api` as string
 
 export const API_URL = {
   root: (url = '') => `${url ? url : ''}`,

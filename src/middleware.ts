@@ -1,13 +1,16 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
 import { EnumTokens } from '@/shared/api/auth-token.service'
-import { userService } from '@/shared/api/user.service'
 import {
   ADMIN_URL,
   DASHBOARD_URL,
   PUBLIC_URL
 } from '@/shared/config/url.config'
 import { UserRole } from '@/shared/types/user.types'
+
+const INTERNAL_API_URL =
+  (process.env.INTERNAL_API_URL as string) ||
+  (process.env.SERVER_URL as string)
 
 export async function middleware(request: NextRequest) {
   const refreshToken = request.cookies.get(
@@ -26,27 +29,43 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  if (refreshToken === undefined) {
-    return NextResponse.rewrite(
+  // нет токенов - всегда на /auth (для админки можно отдать 404)
+  if (!refreshToken || !accessToken) {
+    const response = NextResponse.redirect(
       new URL(isAdminPage ? '/404' : PUBLIC_URL.auth(), request.url)
     )
+    response.cookies.delete(EnumTokens.ACCESS_TOKEN as any)
+    response.cookies.delete(EnumTokens.REFRESH_TOKEN as any)
+    return response
   }
 
+  // обычные страницы, токены есть - впускаем без доп. проверок
+  if (!isAdminPage) return NextResponse.next()
+
+  // для /manage проверяем роль пользователя через API
   try {
-    const profile = await userService.getProfileMiddleware(refreshToken)
+    const res = await fetch(`${INTERNAL_API_URL}/api/users/profile`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    })
 
-    if (profile.role === UserRole.ADMIN) {
-      return NextResponse.next()
-    }
+    if (!res.ok) throw new Error('Failed to load profile')
 
-    if (isAdminPage) {
+    const profile = (await res.json()) as { role: UserRole }
+
+    if (profile.role !== UserRole.ADMIN) {
       return NextResponse.rewrite(new URL('/404', request.url))
     }
 
     return NextResponse.next()
   } catch (error) {
-    request.cookies.delete(EnumTokens.REFRESH_TOKEN)
-    return NextResponse.redirect(new URL(PUBLIC_URL.auth(), request.url))
+    const response = NextResponse.redirect(
+      new URL(PUBLIC_URL.auth(), request.url)
+    )
+    response.cookies.delete(EnumTokens.ACCESS_TOKEN as any)
+    response.cookies.delete(EnumTokens.REFRESH_TOKEN as any)
+    return response
   }
 }
 

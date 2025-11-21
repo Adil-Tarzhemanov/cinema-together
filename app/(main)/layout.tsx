@@ -1,8 +1,8 @@
-import { FC, PropsWithChildren } from 'react'
+import type { ReactNode } from 'react'
 
 import { MainLayout } from '@/shared/ui/layouts/mainLayout/MainLayout'
 
-const Layout: FC<PropsWithChildren<unknown>> = ({ children }) => {
+const Layout = ({ children }: { children: ReactNode }) => {
   return <MainLayout>{children}</MainLayout>
 }
 

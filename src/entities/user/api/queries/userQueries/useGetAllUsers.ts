@@ -4,7 +4,7 @@ import { axiosWithAuth } from '@/shared/api/interceptors'
 import { API_URL } from '@/shared/config/api.config'
 import { IUser } from '@/shared/types/user.types'
 
-const getAllQueries = async searchTerm => {
+const getAllQueries = async (searchTerm?: string) => {
   const { data } = await axiosWithAuth.get<IUser[]>(API_URL.users(''), {
     params: searchTerm ? { searchTerm } : {}
   })

@@ -66,5 +66,5 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/cinema-frontend:latest
-            ghcr.io/${{ github.repository_owner }}/cinema-frontend:${{ github.sha }}
+            ghcr.io/adil-tarzhemanov/cinema-frontend:latest
+            ghcr.io/adil-tarzhemanov/cinema-frontend:${{ github.sha }}
